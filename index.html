@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>mmmosd</title>
 
-  <!-- Pretendard (free, sleek Korean UI font) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <link href="https://fontsgeek.com/bordersprite-font.css" rel="stylesheet">
 
@@ -13,12 +12,12 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧐</text></svg>">
   <style>
     html, body {
-      height: auto;              /* ✅ 스크롤 막힘 해결 */
+      height: auto;
       min-height: 100%;
     }
     body {
       font-family:'Pretendard Variable', Pretendard, system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
-      overflow-y: auto;          /* ✅ body에 스크롤 */
+      overflow-y: auto;
     }
     .tilt-card {
       will-change: transform;
@@ -26,22 +25,22 @@
       transition: transform 0.3s ease;
     }
     .glass-header {
-      background: rgba(255, 255, 255, 0.05);       /* 투명 배경 */
-      backdrop-filter: blur(10px);                  /* 블러 처리 */
-      -webkit-backdrop-filter: blur(10px);         /* Safari 대응 */
-      border: 1px solid rgba(255, 255, 255, 0.1);  /* 테두리 살짝 */
-      border-radius: 1rem;                          /* 모서리 둥글게 */
-      padding: 0.5rem 1rem;                         /* 패딩 약간 */
-      transition: background 0.3s, border 0.3s;    /* 부드러운 변환 */
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
+      padding: 0.5rem 1rem;
+      transition: background 0.3s, border 0.3s;
     }
     #glow-cursor {
         position: fixed;
         top: 0;
         left: 0;
-        width: 500px;             /* 원 크기 */
+        width: 500px;
         height: 500px;
         border-radius: 50%;
-        pointer-events: none;     /* 클릭 방해 X */
+        pointer-events: none;
         background: radial-gradient(
         circle,
         rgba(180, 70, 255, 0.35) 0%,
@@ -50,22 +49,19 @@
         );
         filter: blur(170px);
         transform: translate(-50%, -50%);
-        z-index: 0;               /* 가장 뒤로 */
+        z-index: 0;
         transition: top 0.15s ease-out, left 0.15s ease-out;
     }
 
-    /* 콘텐츠가 위에 보이게 */
     main, header, section, a, div {
         position: relative;
         z-index: 10;
     }
   </style>
 
-  <!-- Tailwind Play CDN for utility classes (single-file friendly) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = {theme: {extend: {colors:{'bg-1':'#07060a','accent':'#8b5cf6'}}}};</script>
 
-  <!-- GSAP for smooth, powerful animations -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
@@ -73,20 +69,18 @@
     .card-3d{transform-style:preserve-3d;will-change:transform}
     .glass{background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));backdrop-filter: blur(8px);-webkit-backdrop-filter: blur(8px);border:1px solid rgba(255,255,255,0.06)}
     section{min-height:100vh;scroll-snap-align:start}
-    main{scroll-snap-type:none;height:auto;overflow:visible} /* ✅ 스크롤 자연스럽게 */
+    main{scroll-snap-type:none;height:auto;overflow:visible}
     @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
   </style>
 </head>
 <body class="bg-bg-1 text-slate-100 antialiased">
     <div id="glow-cursor"></div>
 
-  <!-- Background gradient + floating shapes -->
   <div aria-hidden class="fixed inset-0 -z-10 overflow-hidden">
     <div id="bgGradient" class="absolute inset-0 opacity-50" style="background:radial-gradient(1200px 600px at 10% 20%, rgba(140,92,246,0.18), transparent 12%), radial-gradient(1000px 500px at 90% 80%, rgba(236,72,153,0.12), transparent 10%), linear-gradient(180deg,#0b0a0f,#0a0810);filter: blur(28px);"></div>
     <div id="shapes" class="absolute inset-0 pointer-events-none"></div>
   </div>
 
-  <!-- Top nav -->
   <header class="fixed top-6 left-6 right-6 z-40 flex items-center justify-between glass-header">
     <div class="flex items-center gap-4">
       <a href="#" class="w-11 h-11 rounded-lg glass flex items-center justify-center border border-white/6 font-bold tracking-wider"> 
@@ -315,7 +309,6 @@
       gsap.fromTo(sec.querySelectorAll('h2, h1, p, article, .glass'), {y:30, autoAlpha:0}, {y:0, autoAlpha:1, duration:0.9, ease:'power3.out', stagger:0.12, scrollTrigger:{trigger:sec, start:'top 70%'}});
     });
 
-      // 틸트 효과
   const cards = document.querySelectorAll('.tilt-card');
 
   cards.forEach(card => {
@@ -353,5 +346,6 @@
 
 </body>
 </html>
+
 
 
