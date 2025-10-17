@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>mmmosd</title>
+
+  <!-- Pretendard (free, sleek Korean UI font) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <link href="https://fontsgeek.com/bordersprite-font.css" rel="stylesheet">
+
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧐</text></svg>">
+  <style>
+    html, body {
+      height: auto;              /* ✅ 스크롤 막힘 해결 */
+      min-height: 100%;
+    }
+    body {
+      font-family:'Pretendard Variable', Pretendard, system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
+      overflow-y: auto;          /* ✅ body에 스크롤 */
+    }
+    .tilt-card {
+      will-change: transform;
+      transform-style: preserve-3d;
+      transition: transform 0.3s ease;
+    }
+    .glass-header {
+      background: rgba(255, 255, 255, 0.05);       /* 투명 배경 */
+      backdrop-filter: blur(10px);                  /* 블러 처리 */
+      -webkit-backdrop-filter: blur(10px);         /* Safari 대응 */
+      border: 1px solid rgba(255, 255, 255, 0.1);  /* 테두리 살짝 */
+      border-radius: 1rem;                          /* 모서리 둥글게 */
+      padding: 0.5rem 1rem;                         /* 패딩 약간 */
+      transition: background 0.3s, border 0.3s;    /* 부드러운 변환 */
+    }
+    #glow-cursor {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 500px;             /* 원 크기 */
+        height: 500px;
+        border-radius: 50%;
+        pointer-events: none;     /* 클릭 방해 X */
+        background: radial-gradient(
+        circle,
+        rgba(180, 70, 255, 0.35) 0%,
+        rgba(120, 40, 200, 0.25) 40%,
+        rgba(60, 0, 100, 0) 80%
+        );
+        filter: blur(170px);
+        transform: translate(-50%, -50%);
+        z-index: 0;               /* 가장 뒤로 */
+        transition: top 0.15s ease-out, left 0.15s ease-out;
+    }
+
+    /* 콘텐츠가 위에 보이게 */
+    main, header, section, a, div {
+        position: relative;
+        z-index: 10;
+    }
+  </style>
+
+  <!-- Tailwind Play CDN for utility classes (single-file friendly) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = {theme: {extend: {colors:{'bg-1':'#07060a','accent':'#8b5cf6'}}}};</script>
+
+  <!-- GSAP for smooth, powerful animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <style>
+    .card-3d{transform-style:preserve-3d;will-change:transform}
+    .glass{background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));backdrop-filter: blur(8px);-webkit-backdrop-filter: blur(8px);border:1px solid rgba(255,255,255,0.06)}
+    section{min-height:100vh;scroll-snap-align:start}
+    main{scroll-snap-type:none;height:auto;overflow:visible} /* ✅ 스크롤 자연스럽게 */
+    @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body class="bg-bg-1 text-slate-100 antialiased">
+    <div id="glow-cursor"></div>
+
+  <!-- Background gradient + floating shapes -->
+  <div aria-hidden class="fixed inset-0 -z-10 overflow-hidden">
+    <div id="bgGradient" class="absolute inset-0 opacity-50" style="background:radial-gradient(1200px 600px at 10% 20%, rgba(140,92,246,0.18), transparent 12%), radial-gradient(1000px 500px at 90% 80%, rgba(236,72,153,0.12), transparent 10%), linear-gradient(180deg,#0b0a0f,#0a0810);filter: blur(28px);"></div>
+    <div id="shapes" class="absolute inset-0 pointer-events-none"></div>
+  </div>
+
+  <!-- Top nav -->
+  <header class="fixed top-6 left-6 right-6 z-40 flex items-center justify-between glass-header">
+    <div class="flex items-center gap-4">
+      <a href="#" class="w-11 h-11 rounded-lg glass flex items-center justify-center border border-white/6 font-bold tracking-wider"> 
+        😎
+      </a>
+      <nav class="hidden md:flex gap-6 text-sm text-slate-200/80">
+        <a href="#work" class="hover:underline">Work</a>
+        <a href="#about" class="hover:underline">About</a>
+        <a href="#contact" class="hover:underline">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- HERO -->
+    <section class="flex items-center justify-center px-6 md:px-24">
+      <div class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center py-24">
+
+        <div class="space-y-6">
+          <small class="text-indigo-300 uppercase tracking-wider">AI • Data Analysis • Game Develop</small>
+          <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">오늘도 "깡" 하나 믿고 살아갑니다.</h1>
+          <p class="text-slate-300 max-w-xl">안녕하세요. 저는 "깡" 하나로 문제를 해결해 나가는 최현서입니다.</p>
+          <div class="flex gap-4">
+            <a href="#work" class="inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-white text-black font-medium shadow-lg tilt-card">성과 보기</a>
+            <a href="#contact" class="inline-flex items-center gap-3 px-5 py-3 rounded-2xl border border-white/6 text-sm tilt-card">연락처</a>
+          </div>
+        </div>
+
+        <div class="relative w-full max-w-md mx-auto">
+          <div class="card-3d rounded-3xl p-6 glass border border-white/6 shadow-2xl transition-transform tilt-card">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <h3 class="text-xl font-semibold">최현서</h3>
+                <p class="text-sm text-slate-300/80">게임 개발과 인공지능, <br> 데이터에 관심이 있는 학생입니다.</p>
+              </div>
+              <div class="text-right">
+                <div class="text-xs text-slate-400">개발 시작 연도</div>
+                <div class="font-semibold">2022 ~ 현재</div>
+              </div>
+            </div>
+
+            <div class="mt-6 bg-gradient-to-br from-white/6 to-white/2 rounded-2xl p-4">
+                <div class="mt-4">
+                    <div class="h-48 w-full rounded-2xl overflow-hidden flex items-center justify-center bg-transparent">
+                        <span class="text-[12rem] leading-none select-none">🧐</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 flex items-center justify-between text-sm text-slate-300">
+              <div class="space-y-1">
+                <div class="font-medium">한국디지털미디어고등학교</div>
+                <div class="text-xs text-slate-400">2024 ~ 현재</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- WORK -->
+    <section id="work" class="flex items-center justify-center px-6 md:px-24">
+      <div class="max-w-6xl w-full py-24">
+        <h2 class="text-3xl font-bold mb-8">성과 및 결과</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <a href="https://github.com/mmmosd/MusicAI" target="_blank" class="block p-6 glass rounded-2xl border border-white/6 shadow-lg transition-transform cursor-pointer tilt-card">
+            <h3 class="font-semibold text-lg">MUSGAN</h3>
+            <p class="text-sm text-slate-300 mt-2">DCGAN을 이용한 음악 생성 AI 개발</p>
+            <div class="mt-4">
+              <div class="h-48 w-full rounded-2xl overflow-hidden">
+                <img src="https://github.com/mmmosd/MusicAI/blob/main/Result_Image/epoch_36_0.jpg?raw=true"
+                class="w-full h-full object-cover">
+              </div>
+            </div>
+          </a>
+          <a href="https://github.com/mmmosd/kython" target="_blank" class="block p-6 glass rounded-2xl border border-white/6 shadow-lg transition-transform cursor-pointer tilt-card">
+            <h3 class="font-semibold text-lg">Kython</h3>
+            <p class="text-sm text-slate-300 mt-2">Python으로 개발한 한국어 인터프리터 언어</p>
+            <div class="mt-4">
+              <div class="h-48 w-full rounded-2xl overflow-hidden">
+                <img src="https://www.hangyo.com/data/photos/20210939/art_16327953603642_bce67f.png" class="w-full h-full object-cover">
+              </div>
+            </div>
+          </a>
+          <a href="https://solved.ac/profile/chlgustj132" target="_blank" class="block p-6 glass rounded-2xl border border-white/6 shadow-lg transition-transform cursor-pointer tilt-card">
+            <h3 class="font-semibold text-lg">BOJ</h3>
+            <p class="text-sm text-slate-300 mt-2">백준 온라인 저지 Platinum V 1606</p>
+            <div class="mt-4">
+              <div class="h-48 w-full rounded-2xl overflow-hidden">
+                <img src="https://static.solved.ac/tier_small/16.svg" class="w-full h-full object-contain">
+              </div>
+            </div>
+          </a>
+          <a href="https://kbig.kr/portal/kbig/camp/history.page" target="_blank" class="block p-6 glass rounded-2xl border border-white/6 shadow-lg transition-transform cursor-pointer tilt-card">
+            <h3 class="font-semibold text-lg">DCC 대상 수상</h3>
+            <p class="text-sm text-slate-300 mt-2">데이터 크리에이터 캠프 2024 <br> FREGIC 팀으로 대상 수상</p>
+            <div class="mt-4">
+              <div class="h-48 w-full rounded-2xl overflow-hidden">
+                <img src="https://cdn.aitimes.com/news/photo/202412/165833_180110_5511.jpg" class="w-full h-full object-contain">
+              </div>
+            </div>
+          </a>
+          <a target="_blank" class="block p-6 glass rounded-2xl border border-white/6 shadow-lg transition-transform cursor-pointer tilt-card">
+            <h3 class="font-semibold text-lg">REDBRIC GAME CONTEST 1ST</h3>
+            <p class="text-sm text-slate-300 mt-2">레드브릭 게임 컨테스트 2024 <br> 청소년부 1등상 수상</p>
+            <div class="mt-4">
+              <div class="h-48 w-full rounded-2xl overflow-hidden">
+                <img src="https://api.linkareer.com/attachments/431069" class="w-full h-full object-contain">
+              </div>
+            </div>
+          </a>
+          <a href="https://www.highschool-swcontest.net/%EB%B3%B5%EC%A0%9C-%EC%88%98%EC%83%81-%EA%B2%B0%EA%B3%BC-8%ED%9A%8C" target="_blank" class="block p-6 glass rounded-2xl border border-white/6 shadow-lg transition-transform cursor-pointer tilt-card">
+            <h3 class="font-semibold text-lg">SW Contest 동상 수상</h3>
+            <p class="text-sm text-slate-300 mt-2">전국 고등학교 동아리 소프트웨어 경진대회 2024 <br> 한별 팀으로 동상 수상</p>
+            <div class="mt-4">
+              <div class="h-48 w-full rounded-2xl overflow-hidden">
+                <img src="https://static.wixstatic.com/media/50de4b_051cc239c37546888854ff6ffa73f5ea~mv2.png/v1/fill/w_496,h_700,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/25-%ED%95%9C%EB%B3%84-%EC%95%95%EC%B6%95.png" class="w-full h-full object-contain">
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="stack" class="flex items-center justify-center px-6 md:px-24">
+        <div class="max-w-6xl w-full py-24">
+          <h2 class="text-3xl font-bold mb-8">스택</h2>
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+            <a target="_blank" class="w-48 block p-6 glass rounded-2xl border border-white/6 shadow-lg transition-transform cursor-pointer tilt-card">
+              <h3 class="font-semibold text-lg">Python</h3>
+              <div class="mt-4">
+                <div class="h-48 w-full rounded-2xl overflow-hidden">
+                  <img src="https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/community/logos/python-logo-only.png"
+                  class="w-full h-full object-contain">
+                </div>
+              </div>
+            </a>
+            <a target="_blank" class="w-48 block p-6 glass rounded-2xl border border-white/6 shadow-lg transition-transform cursor-pointer tilt-card">
+              <h3 class="font-semibold text-lg">C</h3>
+              <div class="mt-4">
+                <div class="h-48 w-full rounded-2xl overflow-hidden">
+                  <img src="https://i.namu.wiki/i/gBvIEZOw5xyMkLkFdATVZr40ww9UUCQPpcI1bvp61IIKtKduOxgYp8WC1JsPbygE84QtFY6U5qk-tfOkWqv7Du0Oz8i421rB7d3EFP5Hh4ub_VtEQvYI6z6KeiU09iVsmcX1C22eLDbXoK2hLFCTNA.svg"
+                  class="w-full h-full object-contain">
+                </div>
+              </div>
+            </a>
+            <a target="_blank" class="w-48 block p-6 glass rounded-2xl border border-white/6 shadow-lg transition-transform cursor-pointer tilt-card">
+              <h3 class="font-semibold text-lg">C++</h3>
+              <div class="mt-4">
+                <div class="h-48 w-full rounded-2xl overflow-hidden">
+                  <img src="https://i.namu.wiki/i/Mkn5OhDYbB_jTDix2-NM7y8-ZtrCndHHxbgiS9NSkYVy_LtOCf-M4FVoyc44yWqemMVaIYGmdSGuZiz69AI17oZTLOqkp2fOWuZzaQWViSUDV8pHpnLWftuHnzZ0jj6yy903wJIiFXUP0T3OkcyOIw.svg"
+                  class="w-full h-full object-contain">
+                </div>
+              </div>
+            </a>
+            <a target="_blank" class="w-48 block p-6 glass rounded-2xl border border-white/6 shadow-lg transition-transform cursor-pointer tilt-card">
+              <h3 class="font-semibold text-lg">C#</h3>
+              <div class="mt-4">
+                <div class="h-48 w-full rounded-2xl overflow-hidden">
+                  <img src="https://i.namu.wiki/i/9wxfk3TjZg2M_JCQ0czk5LuBdRiPYmfKtcN8v-cLthzAtMuToUAaGwaRi0U8D56ckQfpDro-K5crwPrrjksi5JX5xzgRrR2OiVbSSiyKvxYSd9Rf92kJl-JLDPpM6LYunebcZjYAcQBLsvgc_aBwMw.svg"
+                  class="w-full h-full object-contain">
+                </div>
+              </div>
+            </a>
+            <a target="_blank" class="w-48 block p-6 glass rounded-2xl border border-white/6 shadow-lg transition-transform cursor-pointer tilt-card">
+              <h3 class="font-semibold text-lg">JAVA</h3>
+              <div class="mt-4">
+                <div class="h-48 w-full rounded-2xl overflow-hidden">
+                  <img src="https://i.namu.wiki/i/oRVa08FAljow1NJ_qJCB7Ldo1irdAuHOTheTBsX3EzWHfQEGDACFjKEw_jfIPyaPJb1rDBpK_MdRbnW1FfRdFGw6jJE7Ql7eSDVNXLwA5NE3rKKHMMjXLlgesAaAg1Pg6GGAqq9tLiKhNx54nQxd0g.svg"
+                  class="w-full h-full object-contain">
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="flex items-center justify-center px-6 md:px-24">
+      <div class="max-w-4xl w-full text-center py-24">
+        <h2 class="text-3xl font-bold mb-4">저는 이런 사람입니다. 🫡</h2>
+        <p class="text-slate-300">새로운 것들을 창작하고 탐구하는 것을 좋아합니다. <br> 제가 개발한 모든 것들이 누군가에게 도움이 되었으면 합니다. </p>
+        <p class="font-semibold text-lg"><br><br>오늘도 더 열정적으로 탐구하고, 새로운 것들을 개발해나가기 위해 노력하고 있습니다.</p>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="flex items-center justify-center px-6 md:px-24">
+      <div class="max-w-2xl w-full text-center py-24">
+        <h2 class="text-3xl font-bold mb-4">연락처</h2>
+        <p class="text-slate-300 mb-6">Gmail : <a href="mailto:hello@example.com" class="underline">chlgustj132@gmail.com</a></p>
+        <div class="flex items-center justify-center gap-4">
+            <a href="#" class="inline-flex items-center gap-3 px-5 py-3 rounded-2xl border border-white/6 text-sm tilt-card">return Portfolio;</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const shapesEl = document.getElementById('shapes');
+    const shapeData = [
+      {w:160, left: '6%', top: '10%', rotate:-12},
+      {w:100, left: '72%', top: '6%', rotate:24},
+      {w:120, left: '18%', top: '62%', rotate:8},
+      {w:80, left: '78%', top: '46%', rotate:-30},
+      {w:100, left: '60%', top: '32%', rotate:-20},
+      {w:90, left: '2%', top: '3%', rotate:-16},
+      {w:130, left: '23%', top: '54%', rotate:-4},
+      {w:200, left: '9%', top: '26%', rotate:-13}
+    ];
+    shapeData.forEach((s, i) => {
+      const div = document.createElement('div');
+      div.style.position = 'absolute'; div.style.left = s.left; div.style.top = s.top; div.style.pointerEvents = 'none';
+      div.style.opacity = '0.7';
+      div.innerHTML = `<svg width="${s.w}" height="${s.w}" viewBox="0 0 100 100" style="transform: rotate(${s.rotate}deg);"><defs><linearGradient id="g${i}" x1="0" x2="1"><stop offset="0%" stop-color="#fff" stop-opacity="0.08"/><stop offset="100%" stop-color="#fff" stop-opacity="0.02"/></linearGradient></defs><rect width="100" height="100" rx="18" fill="url(#g${i})"/></svg>`;
+      shapesEl.appendChild(div);
+      gsap.to(div, {y: 20, x: (i%2===0)? -12:12, duration: 9 + i*2, repeat:-1, yoyo:true, ease:'sine.inOut'});
+    });
+
+    gsap.to('#bgGradient', {filter: 'blur(6px)', opacity:0.9, ease:'none', scrollTrigger:{trigger: '#main', start: 'top top', end: 'bottom top', scrub: 0.6}});
+
+    gsap.utils.toArray('section').forEach((sec)=>{
+      gsap.fromTo(sec.querySelectorAll('h2, h1, p, article, .glass'), {y:30, autoAlpha:0}, {y:0, autoAlpha:1, duration:0.9, ease:'power3.out', stagger:0.12, scrollTrigger:{trigger:sec, start:'top 70%'}});
+    });
+
+      // 틸트 효과
+  const cards = document.querySelectorAll('.tilt-card');
+
+  cards.forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * 10;
+    const rotateY = ((x - centerX) / centerX) * -10;
+
+    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.08)`;
+  });
+
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+  });
+
+  card.addEventListener('mouseenter', () => {
+    card.style.transition = 'transform 0.1s ease';
+  });
+
+  card.addEventListener('mouseleave', () => {
+    card.style.transition = 'transform 0.3s ease';
+  });
+  });
+
+  const glow = document.getElementById('glow-cursor');
+  document.addEventListener('mousemove', (e) => {
+    glow.style.top = `${e.clientY}px`;
+    glow.style.left = `${e.clientX}px`;
+  });
+  </script>
+
+</body>
+</html>
